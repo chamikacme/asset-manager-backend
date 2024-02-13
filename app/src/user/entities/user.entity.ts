@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Organization } from 'src/organization/entities/organization.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -14,34 +15,36 @@ export class User {
   firstName: string;
 
   @Column({
-	nullable: true,
-	name: 'last_name',
-	type: 'varchar',
-	length: 50,
+    nullable: true,
+    name: 'last_name',
+    type: 'varchar',
+    length: 50,
   })
   lastName: string;
 
   @Column({
-	nullable: false,
-	type: 'varchar',
-	length: 100,
-	unique: true,
+    nullable: false,
+    type: 'varchar',
+    length: 100,
+    unique: true,
   })
   email: string;
 
   @Column({
-	nullable: false,
-	type: 'varchar',
-	length: 255,
+    nullable: false,
+    type: 'varchar',
+    length: 255,
   })
   password: string;
 
   @Column({
-	nullable: true,
-	name: 'phone_number',
-	type: 'varchar',
-	length: 50,
+    nullable: true,
+    name: 'phone_number',
+    type: 'varchar',
+    length: 50,
   })
   phoneNumber: string;
 
+  @ManyToOne(() => Organization, (organization) => organization.members)
+  organization: Organization;
 }
