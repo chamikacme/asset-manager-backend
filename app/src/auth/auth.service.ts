@@ -2,6 +2,7 @@ import { Inject, Injectable, NotAcceptableException } from '@nestjs/common';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import { SecurityService } from './security.service';
+import SignInDto from './dto/sign-in.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,5 +34,28 @@ export class AuthService {
       user: newUser,
       token,
     };
+  }
+
+  async signIn(signInDto: SignInDto) {
+    const user = await this.userService.findByEmail(signInDto.email);
+
+    if (!user) {
+      throw new NotAcceptableException('Invalid credentials');
+    }
+
+    const isMatch = await this.securityService.comparePassword(
+      signInDto.password,
+      user.password,
+    );
+
+    if (!isMatch) {
+      throw new NotAcceptableException('Invalid credentials');
+    }
+
+    const token = await this.securityService.generateJwt(user);
+
+    user && delete user.password;
+
+    return { user, token };
   }
 }
