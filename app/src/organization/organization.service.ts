@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
@@ -12,8 +13,15 @@ export class OrganizationService {
     private organizationRepository: Repository<Organization>,
   ) {}
 
-  create(createOrganizationDto: CreateOrganizationDto) {
-    return this.organizationRepository.save(createOrganizationDto);
+  create(createOrganizationDto: CreateOrganizationDto, user: User) {
+    const timestamp = new Date();
+    const newOrganization = this.organizationRepository.create({
+      ...createOrganizationDto,
+      createdBy: user,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+    return this.organizationRepository.save(newOrganization);
   }
 
   findAll() {
@@ -24,8 +32,25 @@ export class OrganizationService {
     return this.organizationRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateOrganizationDto: UpdateOrganizationDto) {
-    return this.organizationRepository.update(id, updateOrganizationDto);
+  async update(
+    id: number,
+    updateOrganizationDto: UpdateOrganizationDto,
+    user: User,
+  ) {
+    const organization = await this.findOne(id);
+
+    if (!organization) {
+      throw new NotFoundException(`Organization with ID ${id} not found`);
+    }
+
+    const updatedOrganization = {
+      ...updateOrganizationDto,
+      updatedAt: new Date(),
+    };
+
+    await this.organizationRepository.update(id, updatedOrganization);
+
+    return { ...organization, ...updatedOrganization };
   }
 
   remove(id: number) {
