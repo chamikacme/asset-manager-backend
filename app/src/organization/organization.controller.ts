@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  NotAcceptableException,
 } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
@@ -31,25 +32,28 @@ export class OrganizationController {
   }
 
   @Get()
+  @Roles(Role.SUPERADMIN)
   findAll() {
     return this.organizationService.findAll();
   }
 
   @Get(':id')
+  @Roles(Role.SUPERADMIN)
   findOne(@Param('id') id: string) {
     return this.organizationService.findOne(+id);
   }
 
   @Patch(':id')
+  @Roles(Role.SUPERADMIN)
   update(
     @Param('id') id: string,
     @Body() updateOrganizationDto: UpdateOrganizationDto,
-    @GetUserDetails() user: User,
   ) {
-    return this.organizationService.update(+id, updateOrganizationDto, user);
+    return this.organizationService.update(+id, updateOrganizationDto);
   }
 
   @Delete(':id')
+  @Roles(Role.SUPERADMIN)
   remove(@Param('id') id: string) {
     return this.organizationService.remove(+id);
   }
@@ -57,6 +61,11 @@ export class OrganizationController {
   @Get('me')
   @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
   getMyOrganization(@GetUserDetails() user: User) {
+    if (!user.organization) {
+      throw new NotAcceptableException(
+        'User does not belong to any organization',
+      );
+    }
     return this.organizationService.findOne(user.organization.id);
   }
 
@@ -66,16 +75,25 @@ export class OrganizationController {
     @Body() updateOrganizationDto: UpdateOrganizationDto,
     @GetUserDetails() user: User,
   ) {
+    if (!user.organization) {
+      throw new NotAcceptableException(
+        'User does not belong to any organization',
+      );
+    }
     return this.organizationService.update(
       user.organization.id,
       updateOrganizationDto,
-      user,
     );
   }
 
   @Delete('me')
   @Roles(Role.ADMIN)
   removeMyOrganization(@GetUserDetails() user: User) {
+    if (!user.organization) {
+      throw new NotAcceptableException(
+        'User does not belong to any organization',
+      );
+    }
     return this.organizationService.remove(user.organization.id);
   }
 }

@@ -32,11 +32,7 @@ export class OrganizationService {
     return this.organizationRepository.findOne({ where: { id } });
   }
 
-  async update(
-    id: number,
-    updateOrganizationDto: UpdateOrganizationDto,
-    user: User,
-  ) {
+  async update(id: number, updateOrganizationDto: UpdateOrganizationDto) {
     const organization = await this.findOne(id);
 
     if (!organization) {
