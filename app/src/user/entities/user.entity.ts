@@ -1,5 +1,6 @@
 import { Organization } from 'src/organization/entities/organization.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Role } from '../enums/role.enum';
 
 @Entity('users')
 export class User {
@@ -47,4 +48,11 @@ export class User {
 
   @ManyToOne(() => Organization, (organization) => organization.members)
   organization: Organization;
+
+  @Column({
+    nullable: false,
+    type: 'varchar',
+    length: 50,
+  })
+  role: Role;
 }

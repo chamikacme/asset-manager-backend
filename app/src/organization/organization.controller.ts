@@ -6,12 +6,18 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { JwtGuard, RolesGuard } from 'src/auth/guard';
+import { Roles } from 'src/auth/decorator';
+import { Role } from 'src/user/enums/role.enum';
 
-@Controller('organization')
+@UseGuards(JwtGuard, RolesGuard)
+@Controller('organizations')
+@Roles(Role.ADMIN)
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 
