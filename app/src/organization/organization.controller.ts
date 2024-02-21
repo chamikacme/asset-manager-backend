@@ -24,12 +24,10 @@ export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 
   @Get('me')
-  @Roles(Role.SUPERADMIN, Role.ADMIN, Role.MANAGER, Role.USER)
+  @Roles(Role.SUPERADMIN, Role.ADMIN, Role.MANAGER, Role.MEMBER)
   getMyOrganization(@GetUserDetails() user: User) {
     if (!user.organization) {
-      throw new NotAcceptableException(
-        'User does not belong to any organization',
-      );
+      throw new NotAcceptableException('You do not belong to any organization');
     }
     return this.organizationService.findOne(user.organization.id);
   }
@@ -41,9 +39,7 @@ export class OrganizationController {
     @GetUserDetails() user: User,
   ) {
     if (!user.organization) {
-      throw new NotAcceptableException(
-        'User does not belong to any organization',
-      );
+      throw new NotAcceptableException('You do not belong to any organization');
     }
     return this.organizationService.update(
       user.organization.id,
@@ -55,15 +51,13 @@ export class OrganizationController {
   @Roles(Role.SUPERADMIN, Role.ADMIN)
   removeMyOrganization(@GetUserDetails() user: User) {
     if (!user.organization) {
-      throw new NotAcceptableException(
-        'User does not belong to any organization',
-      );
+      throw new NotAcceptableException('You do not belong to any organization');
     }
     return this.organizationService.remove(user.organization.id);
   }
 
   @Post()
-  @Roles(Role.SUPERADMIN, Role.ADMIN)
+  @Roles(Role.MEMBER)
   create(
     @Body() createOrganizationDto: CreateOrganizationDto,
     @GetUserDetails() user: User,
@@ -75,9 +69,7 @@ export class OrganizationController {
   @Roles(Role.ADMIN, Role.MANAGER)
   findAllUsers(@GetUserDetails() user: User) {
     if (!user.organization) {
-      throw new NotAcceptableException(
-        'User does not belong to any organization',
-      );
+      throw new NotAcceptableException('You do not belong to any organization');
     }
     return this.organizationService.findAllUsers(user.organization);
   }
@@ -86,9 +78,7 @@ export class OrganizationController {
   @Roles(Role.ADMIN, Role.MANAGER)
   findOneUser(@Param('id') id: string, @GetUserDetails() user: User) {
     if (!user.organization) {
-      throw new NotAcceptableException(
-        'User does not belong to any organization',
-      );
+      throw new NotAcceptableException('You do not belong to any organization');
     }
     return this.organizationService.findOneUser(+id, user.organization);
   }
@@ -101,9 +91,7 @@ export class OrganizationController {
     @GetUserDetails() user: User,
   ) {
     if (!user.organization) {
-      throw new NotAcceptableException(
-        'User does not belong to any organization',
-      );
+      throw new NotAcceptableException('You do not belong to any organization');
     }
     return this.organizationService.updateUser(
       +id,
@@ -116,9 +104,7 @@ export class OrganizationController {
   @Roles(Role.ADMIN, Role.MANAGER)
   removeUser(@Param('id') id: string, @GetUserDetails() user: User) {
     if (!user.organization) {
-      throw new NotAcceptableException(
-        'User does not belong to any organization',
-      );
+      throw new NotAcceptableException('You do not belong to any organization');
     }
     return this.organizationService.removeUser(+id, user.organization);
   }

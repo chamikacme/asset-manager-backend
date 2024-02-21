@@ -22,19 +22,19 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('me')
-  @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.MEMBER)
   me(@GetUserDetails() user: User) {
     return this.userService.findOne(user.id);
   }
 
   @Patch('me')
-  @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.MEMBER)
   updateMe(@GetUserDetails() user: User, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(user.id, updateUserDto);
   }
 
   @Delete('me')
-  @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.MEMBER)
   removeMe(@GetUserDetails() user: User) {
     return this.userService.remove(user.id);
   }

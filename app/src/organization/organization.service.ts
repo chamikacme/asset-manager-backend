@@ -1,11 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { Organization } from './entities/organization.entity';
 import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+import { Role } from 'src/user/enums/role.enum';
 
 @Injectable()
 export class OrganizationService {
@@ -14,17 +19,35 @@ export class OrganizationService {
     private organizationRepository: Repository<Organization>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly entityManager: EntityManager,
   ) {}
 
-  create(createOrganizationDto: CreateOrganizationDto, user: User) {
+  async create(createOrganizationDto: CreateOrganizationDto, user: User) {
+    if (user.organization) {
+      throw new NotAcceptableException(
+        'You already belongs to an organization',
+      );
+    }
+
     const timestamp = new Date();
-    const newOrganization = this.organizationRepository.create({
-      ...createOrganizationDto,
-      createdBy: user,
-      createdAt: timestamp,
-      updatedAt: timestamp,
+
+    return this.entityManager.transaction(async (manager) => {
+      const organization = this.organizationRepository.create({
+        ...createOrganizationDto,
+        createdBy: user,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      });
+
+      const newOrganization = await manager.save(organization);
+
+      await manager.update(User, user.id, {
+        organization: newOrganization,
+        role: Role.ADMIN,
+      });
+
+      return newOrganization;
     });
-    return this.organizationRepository.save(newOrganization);
   }
 
   findAll() {
