@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { OrganizationService } from './organization.service';
-import { OrganizationController } from './organization.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Organization } from './entities/organization.entity';
 import { User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/user.service';
+import { Organization } from './entities/organization.entity';
+import { OrganizationController } from './organization.controller';
+import { OrganizationService } from './organization.service';
 
 @Module({
   imports: [
@@ -11,6 +12,6 @@ import { User } from 'src/user/entities/user.entity';
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [OrganizationController],
-  providers: [OrganizationService],
+  providers: [OrganizationService, UserService],
 })
 export class OrganizationModule {}

@@ -11,6 +11,7 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { Organization } from './entities/organization.entity';
 import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 import { Role } from 'src/user/enums/role.enum';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class OrganizationService {
@@ -19,6 +20,7 @@ export class OrganizationService {
     private organizationRepository: Repository<Organization>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private userService: UserService,
     private readonly entityManager: EntityManager,
   ) {}
 
@@ -54,8 +56,11 @@ export class OrganizationService {
     return this.organizationRepository.find();
   }
 
-  findAllUsers(organization: Organization) {
-    return this.userRepository.find({ where: { organization: organization } });
+  async findAllUsers(organization: Organization) {
+    return await this.userRepository.find({
+      where: { organization: organization },
+      select: ['id', 'firstName', 'lastName', 'email', 'phoneNumber', 'role'],
+    });
   }
 
   findOne(id: number) {
@@ -65,6 +70,7 @@ export class OrganizationService {
   findOneUser(id: number, organization: Organization) {
     return this.userRepository.findOne({
       where: { organization: organization, id },
+      select: ['id', 'firstName', 'lastName', 'email', 'phoneNumber', 'role'],
     });
   }
 
@@ -100,6 +106,8 @@ export class OrganizationService {
 
     await this.userRepository.update(id, updateUserDto);
 
+    user && delete user.password;
+
     return { ...user, ...updateUserDto };
   }
 
@@ -117,5 +125,43 @@ export class OrganizationService {
 
   remove(id: number) {
     return this.organizationRepository.delete(id);
+  }
+
+  async addMember(userEmail: string, organization: Organization) {
+    const user = await this.userService.findByEmail(userEmail);
+
+    if (!user) {
+      throw new NotFoundException(`User with email ${userEmail} not found`);
+    }
+
+    if (user.organization) {
+      throw new NotAcceptableException(
+        `User with email ${userEmail} already belongs to an organization`,
+      );
+    }
+
+    await this.userRepository.update(user.id, {
+      organization: organization,
+      role: Role.MEMBER,
+    });
+
+    return { message: 'User added to the organization' };
+  }
+
+  async removeMember(id: number, organization: Organization) {
+    const user = await this.userRepository.findOne({
+      where: { id: id, organization: organization },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    await this.userRepository.update(id, {
+      organization: null,
+      role: Role.MEMBER,
+    });
+
+    return { message: 'User removed from the organization' };
   }
 }
