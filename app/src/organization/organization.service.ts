@@ -12,6 +12,7 @@ import { Organization } from './entities/organization.entity';
 import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 import { Role } from 'src/user/enums/role.enum';
 import { UserService } from 'src/user/user.service';
+import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Injectable()
 export class OrganizationService {
@@ -163,5 +164,19 @@ export class OrganizationService {
     });
 
     return { message: 'User removed from the organization' };
+  }
+
+  async updateRole(updateRole: UpdateRoleDto, organization: Organization) {
+    const userToUpdate = await this.userRepository.findOne({
+      where: { id: updateRole.id, organization: organization },
+    });
+
+    if (!userToUpdate) {
+      throw new NotFoundException(`User with ID ${updateRole.id} not found`);
+    }
+
+    await this.userRepository.update(updateRole.id, { role: updateRole.role });
+
+    return { message: 'User role updated' };
   }
 }

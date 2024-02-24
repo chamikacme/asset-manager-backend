@@ -38,8 +38,6 @@ export class UserService {
       where: { email },
       relations: ['organization'],
     });
-
-    user && delete user.password;
     return user;
   }
 
