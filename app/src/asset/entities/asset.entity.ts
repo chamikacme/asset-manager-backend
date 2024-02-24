@@ -1,15 +1,10 @@
-import { Asset } from 'src/asset/entities/asset.entity';
+import { Organization } from 'src/organization/entities/organization.entity';
 import { User } from 'src/user/entities/user.entity';
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { AssetCondition } from '../enums/asset-condition.enum';
 
-@Entity('organizations')
-export class Organization {
+@Entity('assets')
+export class Asset {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -45,15 +40,19 @@ export class Organization {
   })
   updatedAt: Date;
 
-  @OneToMany(() => User, (user) => user.organization, {
-    cascade: true,
-    onDelete: 'CASCADE',
+  @Column({
+    nullable: false,
+    name: 'condition',
+    type: 'varchar',
+    length: 20,
   })
-  members: User[];
+  condition: AssetCondition;
 
-  @OneToMany(() => Asset, (asset) => asset.organization, {
-    cascade: true,
-    onDelete: 'CASCADE',
+  @ManyToOne(() => User, (user) => user.assets, {
+    nullable: true,
   })
-  assets: Asset[];
+  assignedTo: User;
+
+  @ManyToOne(() => Organization, (organization) => organization.assets)
+  organization: Organization;
 }

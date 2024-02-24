@@ -4,15 +4,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 import { User } from 'src/user/entities/user.entity';
+import { Role } from 'src/user/enums/role.enum';
+import { UserService } from 'src/user/user.service';
 import { EntityManager, Repository } from 'typeorm';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
-import { Organization } from './entities/organization.entity';
-import { UpdateUserDto } from 'src/user/dto/update-user.dto';
-import { Role } from 'src/user/enums/role.enum';
-import { UserService } from 'src/user/user.service';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { Organization } from './entities/organization.entity';
 
 @Injectable()
 export class OrganizationService {
@@ -167,6 +167,10 @@ export class OrganizationService {
   }
 
   async updateRole(updateRole: UpdateRoleDto, organization: Organization) {
+    if (updateRole.role === Role.SUPERADMIN) {
+      throw new NotAcceptableException('Role SUPERADMIN is not allowed');
+    }
+
     const userToUpdate = await this.userRepository.findOne({
       where: { id: updateRole.id, organization: organization },
     });

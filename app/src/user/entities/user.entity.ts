@@ -1,6 +1,13 @@
 import { Organization } from 'src/organization/entities/organization.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Role } from '../enums/role.enum';
+import { Asset } from 'src/asset/entities/asset.entity';
 
 @Entity('users')
 export class User {
@@ -55,4 +62,10 @@ export class User {
     length: 50,
   })
   role: Role;
+
+  @OneToMany(() => Asset, (asset) => asset.assignedTo, {
+    cascade: true,
+    onDelete: 'SET NULL',
+  })
+  assets: Asset[];
 }
