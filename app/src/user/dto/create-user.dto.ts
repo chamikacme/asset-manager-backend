@@ -1,5 +1,4 @@
 import {
-  IsAlpha,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -8,11 +7,11 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @IsAlpha('en-US', { message: 'First name must contain only letters' })
+  @IsString({ message: 'First name must be a string' })
   @IsNotEmpty({ message: 'First name is required' })
   firstName: string;
 
-  @IsAlpha('en-US', { message: 'Last name must contain only letters' })
+  @IsString({ message: 'Last name must be a string' })
   @IsOptional()
   lastName: string;
 

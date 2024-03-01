@@ -47,7 +47,7 @@ export class Organization {
 
   @OneToMany(() => User, (user) => user.organization, {
     cascade: true,
-    onDelete: 'CASCADE',
+    onDelete: 'SET NULL',
   })
   members: User[];
 

@@ -53,7 +53,9 @@ export class User {
   })
   phoneNumber: string;
 
-  @ManyToOne(() => Organization, (organization) => organization.members)
+  @ManyToOne(() => Organization, (organization) => organization.members, {
+    onDelete: 'SET NULL',
+  })
   organization: Organization;
 
   @Column({
