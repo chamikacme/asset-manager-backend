@@ -143,8 +143,6 @@ export class OrganizationController {
     @Body('userEmail') userEmail: string,
     @GetUserDetails() user: User,
   ) {
-    console.log('user', user);
-
     return this.organizationService.addMember(userEmail, user.organization);
   }
 

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrganizationDto {
   @IsString({ message: 'Name must be a string' })
@@ -6,6 +6,6 @@ export class CreateOrganizationDto {
   name: string;
 
   @IsString({ message: 'Description must be a string' })
-  @IsNotEmpty({ message: 'Description is required' })
+  @IsOptional()
   description: string;
 }
