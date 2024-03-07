@@ -179,6 +179,18 @@ export class OrganizationService {
       throw new NotFoundException(`User with ID ${updateRole.id} not found`);
     }
 
+    if (userToUpdate.role === Role.ADMIN && updateRole.role !== Role.ADMIN) {
+      const adminCount = await this.userRepository.count({
+        where: { organization: organization, role: Role.ADMIN },
+      });
+
+      if (adminCount === 1) {
+        throw new NotAcceptableException(
+          'Organization must have at least one admin',
+        );
+      }
+    }
+
     await this.userRepository.update(updateRole.id, { role: updateRole.role });
 
     return { message: 'User role updated' };
