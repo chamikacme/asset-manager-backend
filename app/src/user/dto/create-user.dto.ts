@@ -24,6 +24,6 @@ export class CreateUserDto {
   password: string;
 
   @IsOptional()
-  @Matches(/^\+\d{7,15}$/, { message: 'Invalid mobile number' })
+  @Matches(/^(\+\d{7,15})?$/, { message: 'Invalid mobile number' })
   phoneNumber: string;
 }
