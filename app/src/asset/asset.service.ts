@@ -33,6 +33,7 @@ export class AssetService {
     } else if (user.role === 'admin' || user.role === 'manager') {
       return await this.assetRepository.find({
         where: { organization: user.organization },
+        relations: ['assignedTo'],
       });
     } else if (user.role === 'member') {
       return await this.assetRepository.find({
