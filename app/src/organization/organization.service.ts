@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Asset } from 'src/asset/entities/asset.entity';
 import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 import { User } from 'src/user/entities/user.entity';
 import { Role } from 'src/user/enums/role.enum';
@@ -152,15 +153,25 @@ export class OrganizationService {
   async removeMember(id: number, organization: Organization) {
     const user = await this.userRepository.findOne({
       where: { id: id, organization: organization },
+      relations: ['assets'],
     });
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    await this.userRepository.update(id, {
-      organization: null,
-      role: Role.MEMBER,
+    await this.entityManager.transaction(async (manager) => {
+      if (user.assets.length > 0) {
+        for (const asset of user.assets) {
+          asset.assignedTo = null;
+          await manager.save(asset);
+        }
+      }
+
+      await manager.update(User, id, {
+        organization: null,
+        role: Role.MEMBER,
+      });
     });
 
     return { message: 'User removed from the organization' };
