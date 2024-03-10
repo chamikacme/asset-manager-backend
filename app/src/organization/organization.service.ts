@@ -73,6 +73,7 @@ export class OrganizationService {
     return this.userRepository.findOne({
       where: { organization: organization, id },
       select: ['id', 'firstName', 'lastName', 'email', 'phoneNumber', 'role'],
+      relations: ['assets'],
     });
   }
 

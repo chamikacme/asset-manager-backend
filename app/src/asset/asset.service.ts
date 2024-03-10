@@ -49,12 +49,12 @@ export class AssetService {
     if (user.role === 'superadmin') {
       asset = await this.assetRepository.findOne({
         where: { id },
-        relations: ['assignedTo', 'organization'],
+        relations: ['assignedTo', 'organization', 'createdBy'],
       });
     } else if (user.role === 'admin' || user.role === 'manager') {
       asset = await this.assetRepository.findOne({
         where: { id, organization: user.organization },
-        relations: ['assignedTo', 'organization'],
+        relations: ['assignedTo', 'organization', 'createdBy'],
       });
     } else if (user.role === 'member') {
       asset = await this.assetRepository.findOne({
