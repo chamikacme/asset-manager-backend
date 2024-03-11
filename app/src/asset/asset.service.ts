@@ -35,13 +35,15 @@ export class AssetService {
         where: { organization: user.organization },
         relations: ['assignedTo'],
       });
-    } else if (user.role === 'member') {
-      return await this.assetRepository.find({
-        where: { assignedTo: user },
-      });
     } else {
       return [];
     }
+  }
+
+  async findMyAssets(user: User) {
+    return await this.assetRepository.find({
+      where: { assignedTo: user },
+    });
   }
 
   async findOne(id: number, user: User) {

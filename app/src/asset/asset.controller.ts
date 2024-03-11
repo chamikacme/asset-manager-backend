@@ -28,9 +28,15 @@ export class AssetController {
   }
 
   @Get()
-  @Roles(Role.SUPERADMIN, Role.ADMIN, Role.MANAGER, Role.MEMBER)
+  @Roles(Role.SUPERADMIN, Role.ADMIN, Role.MANAGER)
   findAll(@GetUserDetails() user: User) {
     return this.assetService.findAll(user);
+  }
+
+  @Get('my-assets')
+  @Roles(Role.SUPERADMIN, Role.ADMIN, Role.MANAGER, Role.MEMBER)
+  findMyAssets(@GetUserDetails() user: User) {
+    return this.assetService.findMyAssets(user);
   }
 
   @Get(':id')
