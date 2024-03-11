@@ -1,0 +1,47 @@
+version: "3"
+services:
+  api:
+    build:
+      context: ../
+      dockerfile: ./docker/files/dev.Dockerfile
+    container_name: "api"
+    env_file:
+      - ./env/api.env
+    depends_on:
+      - database
+    ports:
+      - "3000:3000"
+    volumes:
+      - /usr/src/app/node_modules
+      - ../app/:/usr/src/app/
+    working_dir: /usr/src/app
+    command: ["npm", "run", "start:dev"]
+
+  database:
+    image: mysql:8
+    restart: unless-stopped
+    container_name: database
+    env_file:
+      - ./env/db.env
+    volumes:
+      - am_db:/var/lib/mysql
+    ports:
+      - "3307:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    links:
+      - database
+    depends_on:
+      - database
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - "8080:80"
+
+volumes:
+  am_db:
